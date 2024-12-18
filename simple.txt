@@ -1,0 +1,118 @@
+EXPLANATION OF THE CODE (SOURCE: GPT)
+
+
+This code snippet handles the chat history management and interaction flow in a Streamlit app. Here’s a breakdown of its functionality:
+
+1. Managing Chat History
+python
+Copy code
+if "messages" not in st.session_state or st.sidebar.button("Clear message hsitory"):
+    st.session_state["messages"] = [
+        {
+            "role": "assistant", "content": "Hi! How can I help you?"
+        },
+    ]
+Purpose: Initializes or clears the chat history.
+Explanation:
+st.session_state["messages"]: This stores the chat history as a list of dictionaries, where each dictionary represents a message.
+The if condition checks if the messages key exists in st.session_state. If not, it initializes it with a default assistant message: "Hi! How can I help you?".
+If the "Clear message history" button on the sidebar is pressed, it resets the chat history.
+
+
+
+
+2. Displaying Existing Chat History
+python
+Copy code
+for msg in st.session_state.messages:
+    st.chat_message(msg["role"]).write(msg['content'])
+Purpose: Displays the messages stored in the session state.
+Explanation:
+Iterates over each message in st.session_state["messages"].
+Uses st.chat_message to render the message on the UI, distinguishing between the role (user or assistant) and the content of the message.
+
+
+
+3. Handling New User Input
+python
+Copy code
+user_query = st.chat_input(placeholder="Ask anything from the database")
+Purpose: Creates an input box where the user can type their query.
+Explanation:
+st.chat_input: A Streamlit widget for chat input, with a placeholder guiding the user.
+The user’s input is stored in the variable user_query.
+
+
+
+
+4. Appending User Query to Chat History
+python
+Copy code
+if user_query:
+    st.session_state.messages.append(
+        {
+            "role": "user", "content": user_query
+        }  
+    )
+    st.chat_message("user").write(user_query)
+
+Purpose: Adds the user's query to the chat history and displays it.
+Explanation:
+Checks if user_query contains input.
+Appends the user query to st.session_state["messages"] with the role user.
+Immediately displays the user’s message on the chat interface using st.chat_message.
+
+
+
+5. Generating Assistant's Response
+python
+Copy code
+with st.chat_message("assistant"):
+    streamlit_callback = StreamlitCallbackHandler(
+        st.container(),
+    )
+
+    response = agent.run(
+        user_query,
+        callbacks=[streamlit_callback]
+    )
+Purpose: Passes the user query to the agent, gets a response, and displays it.
+Explanation:
+Uses a with block to indicate that the assistant's message is being processed.
+StreamlitCallbackHandler: Tracks and displays the assistant's intermediate thoughts or actions in real-time.
+agent.run(user_query, callbacks=[streamlit_callback]): Runs the query through the agent and captures the response.
+
+
+
+6. Appending Assistant Response to Chat History
+python
+Copy code
+st.session_state.messages.append(
+    {
+        "role": "assistant", "content": response
+    }
+)
+st.write(response)
+Purpose: Stores the assistant’s response in the chat history and displays it.
+
+
+
+Explanation:
+Appends the response to st.session_state["messages"] under the role assistant.
+Renders the response in the chat interface.
+Overall Workflow
+The app initializes the chat history or clears it if the user clicks the "Clear message history" button.
+Existing chat messages are displayed.
+The user types a query, which is stored in the session state and displayed.
+The query is sent to the agent, which processes it and generates a response.
+The response is displayed and stored in the chat history for future interactions.
+
+
+
+
+
+
+
+
+
+
